@@ -1,0 +1,101 @@
+Number_of_Users <- 3            #Limit of 20
+Number_of_Applications <- 20     #Limit of 15
+Number_of_Databases <- 3        #Limit of 8
+Number_of_Nodes <- Number_of_Users+Number_of_Applications+Number_of_Databases
+FromDatabaseToApplicationsConnections <- 20     #These numbers should be >= Number_of_Applications
+FromUserToApplicationsConnections<- 20
+ID_Key <- "s"
+StartingNode<- "s1"
+
+
+
+
+#-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-#
+#                                    ~~~  Node Source Creation Start  ~~~
+#-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-#
+
+
+
+
+#Users Primary Key List
+UsersEquationRange <- 1:Number_of_Users
+UsersEquationNodeList <- paste(ID_Key,UsersEquationRange, sep = "")
+
+#Applications Primary Key List
+ApplicationsEquationRangeStart <- Number_of_Users+1
+ApplicationsEquationRange<-ApplicationsEquationRangeStart:(ApplicationsEquationRangeStart+Number_of_Applications-1)
+ApplicationsEquationNodeList<- paste(ID_Key,ApplicationsEquationRange, sep = "")
+
+#Databases Primary Key List
+DatabasesEquationRangeStart<- (Number_of_Users+Number_of_Applications+1)
+DatabasesEquationRange<- DatabasesEquationRangeStart:(DatabasesEquationRangeStart+Number_of_Databases-1)
+DatabasesEquationNodeList<- paste(ID_Key,DatabasesEquationRange, sep = "")
+
+#Combining all 3 elemnents into Primary Key List
+PrimaryKeyNodeListCombinedElements<- c(UsersEquationNodeList,ApplicationsEquationNodeList,DatabasesEquationNodeList)
+NodeListPrimaryKey<-as.matrix(PrimaryKeyNodeListCombinedElements,Number_of_Nodes,1)
+
+
+
+#-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-#
+#                                    ~~~  Edge Source Creation Start  ~~~
+#-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-#
+
+
+
+#From List Element Creation
+FromUsers<- (c(StartingNode,sample(UsersEquationNodeList,size=(FromUserToApplicationsConnections-1),replace = TRUE)))
+FromDatabases <- sample(DatabasesEquationNodeList, size=FromDatabaseToApplicationsConnections, replace = TRUE)
+Application_Times <- FromUserToApplicationsConnections+FromDatabaseToApplicationsConnections
+ToApplications <- sample(ApplicationsEquationNodeList, size=Application_Times, replace = TRUE)
+
+#From List Combining of Elements
+FromList <- c(FromUsers,FromDatabases)
+FromMatrix <- as.matrix(FromList,nrow=Application_Times,ncol=1)
+EdgeListComplete <- cbind(FromList,ToApplications)
+colnames(EdgeListComplete)<-c("From","To")
+
+#Master Source
+EdgeDataFrame<-as.data.frame(EdgeListComplete)
+
+
+#-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-#
+#                                    ~~~  Connection Analysis Start  ~~~
+#-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-#
+
+
+#1ST Connection File
+StartingNodeConnections<-EdgeDataFrame[EdgeDataFrame[,'From']==StartingNode,]
+StartingNodeConnectionsDF<-as.data.frame(StartingNodeConnections)
+
+#1st Strictly TO's
+FirstDegreeConnectionsP1<-as.matrix(StartingNodeConnectionsDF[,2])
+FirstDegreeConnections<- unique(StartingNodeConnectionsDF[,2])
+
+FirstDegreeSeparation<- as.data.frame(StartingNodeConnectionsDF$To)
+colnames(FirstDegreeSeparation)<-"To"
+
+#Searched To's in TO column, New list of From's to index
+UniqueFirstDegreeTos<-unique(FirstDegreeSeparation)
+SecondDegreeSeparationWithFirst<- subset(EdgeListComplete, EdgeListComplete[,2]==UniqueFirstDegreeTos)
+
+#Remove Starting Node from new connections
+SecondDegreeWithoutFirst <- subset(SecondDegreeSeparationWithFirst,SecondDegreeSeparationWithFirst[,1]!=StartingNode)
+
+#Second Degree List of connections
+SecondDegreeConnections <- SecondDegreeWithoutFirst[,1]
+SecondDegreeUniqueConnections<-unique(SecondDegreeConnections)
+
+## Formatting Print Output
+a<-as.vector(FirstDegreeConnectionsP1)
+b<- gsub(pattern="c(\\\\\\\\\\\\\\\\)", x=a, replacement = TRUE)
+
+## Print output
+invisible(cat(paste("Your Starting Node is ",StartingNode)))
+cat(". Its 1st degree of separation contain the elements : ")
+cat(b)
+cat(" ")
+invisible(cat("The 2nd degree of separation contain the elements : "))
+cat(SecondDegreeUniqueConnections)
+
+
