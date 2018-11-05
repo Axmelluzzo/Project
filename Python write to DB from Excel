@@ -1,0 +1,36 @@
+import psycopg2
+import xlrd
+
+book= xlrd.open_workbook(r'C:\Users\M23509\Desktop\PyCharmDevelopment\PyCharmTestBook.xlsx')
+sheet= book.sheet_by_name("TestSheet")
+
+
+database = psycopg2.connect(database = "PyCharm", user="Alex", password="Dantedobee88", host="localhost", port="5433")
+
+cursor = database.cursor()
+
+query = """INSERT INTO public.pydash (Product, Sales_N, Sales_L, Sales_D, Sales_P) VALUES (%s, %s, %s, %s, %s)"""
+
+for r in range(1, sheet.nrows):
+    Product = sheet.cell(r,0).value
+    Sales_N = sheet.cell(r,1).value
+    Sales_L = sheet.cell(r,2).value
+    Sales_D = sheet.cell(r,3).value
+    Sales_P = sheet.cell(r,4).value
+
+    values = (Product, Sales_N, Sales_L, Sales_D, Sales_P)
+
+    cursor.execute(query, values)
+
+cursor.close()
+
+database.commit()
+
+database.close()
+
+print("")
+print("")
+columns = str(sheet.ncols)
+rows = str(sheet.nrows)
+
+print("I just imported " + columns + " columns and " + rows + " rows Excel into postgreSQL")
