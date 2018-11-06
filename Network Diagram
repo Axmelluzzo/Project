@@ -1,12 +1,19 @@
-Number_of_Users <- 3            #Limit of 20
-Number_of_Applications <- 20     #Limit of 15
-Number_of_Databases <- 3        #Limit of 8
-Number_of_Nodes <- Number_of_Users+Number_of_Applications+Number_of_Databases
-FromDatabaseToApplicationsConnections <- 20     #These numbers should be >= Number_of_Applications
-FromUserToApplicationsConnections<- 20
+Number_of_Users <- 3            
+Number_of_Applications <- 20     
+Number_of_Databases <- 3        
+UserToConnections <- 20                 # For Demo purposes, this value must be an even number
+ApplicationsToConnections<- 21         # For Demo purposes, this value must be divisible by 3
+
 ID_Key <- "s"
 StartingNode<- "s1"
 
+
+
+#__<>__<>__<>__<>__<>__<>__<>__<>_~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~__<>__<>__<>__<>__<>__<>__<>__<>__
+#__<>__<>__<>__<>__<>__<>__<>__<>_                                       __<>__<>__<>__<>__<>__<>__<>__<>__
+#__<>__<>__<>__<>__<>__<>__<>__<>_           EDITING ENDS HERE           __<>__<>__<>__<>__<>__<>__<>__<>__
+#__<>__<>__<>__<>__<>__<>__<>__<>_                                       __<>__<>__<>__<>__<>__<>__<>__<>__
+#__<>__<>__<>__<>__<>__<>__<>__<>_~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~__<>__<>__<>__<>__<>__<>__<>__<>__
 
 
 
@@ -16,6 +23,8 @@ StartingNode<- "s1"
 
 
 
+#Number of Nodes
+Number_of_Nodes <- Number_of_Users+Number_of_Applications+Number_of_Databases
 
 #Users Primary Key List
 UsersEquationRange <- 1:Number_of_Users
@@ -35,6 +44,33 @@ DatabasesEquationNodeList<- paste(ID_Key,DatabasesEquationRange, sep = "")
 PrimaryKeyNodeListCombinedElements<- c(UsersEquationNodeList,ApplicationsEquationNodeList,DatabasesEquationNodeList)
 NodeListPrimaryKey<-as.matrix(PrimaryKeyNodeListCombinedElements,Number_of_Nodes,1)
 
+#NodeListColors
+UserColor<- "magenta"
+ApplicationColor <- "lawngreen"
+DatabaseColor <- "aquamarine"
+
+#NodeColorAddition
+UserColorAmount <- sample(UserColor, size=Number_of_Users, replace = TRUE)
+ApplicationColorAmount <- sample(ApplicationColor, size = Number_of_Applications, replace = TRUE)
+DatabaseColorAmount <- sample(DatabaseColor, size = Number_of_Databases, replace = TRUE)
+NodeColors <- c(UserColorAmount,ApplicationColorAmount,DatabaseColorAmount)
+
+#NodeListSize
+UserSize <- 1.5
+ApplicationSize <- 2.8
+DatabaseSize <- 7
+
+#NodeColorAddition
+UserSizeAmount <- rep(UserSize, length.out=Number_of_Users, replace = TRUE)
+ApplicationSizeAmount <- rep(ApplicationSize, length.out = Number_of_Applications, replace = TRUE)
+DatabaseSizeAmount <- rep( DatabaseSize, length.out = Number_of_Databases, replace = TRUE)
+NodeSizes <- c(UserSizeAmount,ApplicationSizeAmount,DatabaseSizeAmount)
+
+#NodeCompletedSource
+NodeCompletedSource<- cbind(NodeListPrimaryKey,NodeColors,NodeSizes)
+NodeCompletedSourceMatrix<- as.matrix(NodeCompletedSource)
+colnames(NodeCompletedSource)<- c("NodeID","NodeColors","NodeSizes")
+
 
 
 #-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-#
@@ -44,24 +80,36 @@ NodeListPrimaryKey<-as.matrix(PrimaryKeyNodeListCombinedElements,Number_of_Nodes
 
 
 #From List Element Creation
-FromUsers<- (c(StartingNode,sample(UsersEquationNodeList,size=(FromUserToApplicationsConnections-1),replace = TRUE)))
-FromDatabases <- sample(DatabasesEquationNodeList, size=FromDatabaseToApplicationsConnections, replace = TRUE)
-Application_Times <- FromUserToApplicationsConnections+FromDatabaseToApplicationsConnections
-ToApplications <- sample(ApplicationsEquationNodeList, size=Application_Times, replace = TRUE)
+FromUsers<- (c(StartingNode,sample(UsersEquationNodeList,size=(UserToConnections-1),replace = TRUE)))
+FromApplications <- sample(ApplicationsEquationNodeList, size=ApplicationsToConnections, replace = TRUE)
+Total_Connection_Times <- ApplicationsToConnections+UserToConnections
+
+# User To Creation
+ToSection1.1 <- sample(ApplicationsEquationNodeList, size = (UserToConnections*.5), replace = TRUE)
+ToSection1.2 <- sample(DatabasesEquationNodeList, size = (UserToConnections*.5), replace = TRUE)
+print(FromUsers)
+
+# Application To Creation
+OneThird <- sum(1/3)
+ToSection2.1 <- sample(UsersEquationNodeList, size=ApplicationsToConnections*OneThird, replace = TRUE)
+ToSection2.2 <- sample(ApplicationsEquationNodeList, size=ApplicationsToConnections*OneThird, replace = TRUE)
+ToSection2.3 <- sample(DatabasesEquationNodeList, size=ApplicationsToConnections*OneThird, replace = TRUE)
+ToCombined <- c(ToSection1.1,ToSection1.2,ToSection2.1,ToSection2.2,ToSection2.3)
+ToCombinedMatrix <- as.matrix(ToCombined)
 
 #From List Combining of Elements
-FromList <- c(FromUsers,FromDatabases)
-FromMatrix <- as.matrix(FromList,nrow=Application_Times,ncol=1)
-EdgeListComplete <- cbind(FromList,ToApplications)
+FromList <- c(FromUsers,FromApplications)
+FromMatrix <- as.matrix(FromList,nrow=Total_Connection_Times,ncol=1)
+EdgeListComplete <- cbind(FromList,ToCombined)
 colnames(EdgeListComplete)<-c("From","To")
-
-#Master Source
 EdgeDataFrame<-as.data.frame(EdgeListComplete)
+
 
 
 #-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-#
 #                                    ~~~  Connection Analysis Start  ~~~
 #-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-#
+
 
 
 #1ST Connection File
@@ -99,3 +147,28 @@ invisible(cat("The 2nd degree of separation contain the elements : "))
 cat(SecondDegreeUniqueConnections)
 
 
+
+#__<>__<>__<>__<>__<>__<>__<>__<>_~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~__<>__<>__<>__<>__<>__<>__<>__<>__#
+#__<>__<>__<>__<>__<>__<>__<>__<>_                                       __<>__<>__<>__<>__<>__<>__<>__<>__#
+#__<>__<>__<>__<>__<>__<>__<>__<>_          VISUALIZATION  START         __<>__<>__<>__<>__<>__<>__<>__<>__#
+#__<>__<>__<>__<>__<>__<>__<>__<>_                                       __<>__<>__<>__<>__<>__<>__<>__<>__#
+#__<>__<>__<>__<>__<>__<>__<>__<>_~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~.~__<>__<>__<>__<>__<>__<>__<>__<>__#
+
+
+
+library(threejs)
+library(crosstalk)
+library(DT)
+library(igraph)
+
+net = graph_from_data_frame(d=EdgeListComplete, vertices = NodeCompletedSource, directed = T)
+
+graphjs(net, vertex.label = V(net)$NodeID, vertex.shape = "sphere", vertex.color = V(net)$NodeColors,
+        vertex.size = V(net)$NodeSizes, bg = "black", edge.color = "white", edge.width = .22,
+        main = "Cigna Network Diagram", edge.alpha = .27, brush = TRUE, use.orbitcontrols=FALSE,
+        cumulative=TRUE)
+
+#  sd = SharedData$new(data.frame(Name= V(net)$From))
+#  bscols(
+#  graphjs(net, brush=TRUE, crosstalk=sd, width=450),
+#  datatable(NodeListPrimaryKey, rownames = FALSE, width=450))
