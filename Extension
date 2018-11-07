@@ -1,98 +1,40 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-    <title>Respond to Events</title>
-	
-    <script type="text/javascript" 
-	    src="https://p-tableau.sys.cigna.com/javascripts/api/tableau-2.min.js"></script>
-    
-    <script type="text/javascript">
-    const express = require('express');
-
-        var viz;
-        
-        function initViz() {
-            var containerDiv = document.getElementById("vizContainer"),
-                url = "http://p-tableau.sys.cigna.com/t/CIMA/views/DATASLAYER1/Dashboard?iframeSizedToWindow=true&:embed=y&:showAppBanner=false&:display_count=no&:showVizHome=no",
-                options = {
-                    "Academic Year": "",
-                    hideTabs: true,
-                    onFirstInteractive: function () {
-                        listenToMarksSelection();
-                    }
-                };
-            
-            viz = new tableau.Viz(containerDiv, url, options);
-        }
-
-        function listenToMarksSelection() {
-            viz.addEventListener(tableau.TableauEventName.MARKS_SELECTION, onMarksSelection);
-        }
-
-        function onMarksSelection(marksEvent) {
-            return marksEvent.getMarksAsync().then(reportSelectedMarks);
-        }
-
-        function reportSelectedMarks(marks) {
-            var html = ""; 
-            
-            for (var markIndex = 0; markIndex < marks.length; markIndex++) {
-                var pairs = marks[markIndex].getPairs();
-                html += "<b>Mark " + markIndex + ":</b><ul>";
-
-                for (var pairIndex = 0; pairIndex < pairs.length; pairIndex++) {
-                    var pair = pairs[pairIndex];
-                    html += "<li><b>Field Name:</b> " + pair.fieldName;
-                    html += "<br/><b>Value:</b> " + pair.formattedValue + "</li>";
-                }
-
-                html += "</ul>";
-            }
-
-            var infoDiv = document.getElementById('markDetails');
-            infoDiv.innerHTML = html;
-        }
-    </script>
-</head>
-
-<body onload="initViz();">
+function listenToMarksSelection() {
+    viz.addEventListener(tableau.TableauEventName.MARKS_SELECTION, onMarksSelection);
+  }
+  
+  function onMarksSelection(marksEvent) {
+    return marksEvent.getMarksAsync().then(reportSelectedMarks);
+  }
+  
+  function reportSelectedMarks(marks) {
+    var html = [];
+    for (var markIndex = 0; markIndex < marks.length; markIndex++) {
+      var pairs = marks[markIndex].getPairs();
+      html.push("<b>Mark " + markIndex + ":</b><ul>");
+      for (var pairIndex = 0; pairIndex < pairs.length; pairIndex++) {
+        var pair = pairs[pairIndex];
+        html.push("<li><b>fieldName:</b> " + pair.fieldName);
+        html.push("<br/><b>formattedValue:</b> " + pair.formattedValue + "</li>");
+      }
+      html.push("</ul>");
+    }
+  
+    var dialog = $("#dialog");
+    dialog.html(html.join(""));
+    dialog.dialog("open");
+  }     
 
 
-<div id="vizContainer" style="position: absolute;"></div>
-<div id="markDetails" style="float: right;">The mark you have selected is:</div>
-<form id = "form1" onsubmit= "submitting();" method="POST" style="float: right;">
-LAN ID: <input type="text" id="LANID"><br>
-Comment: <input type="text" id="Comment" ><br>
-<input type="submit" value="Enter Comment">
-</form>
+// Variable we want is "PAIR", write that to a JSON.
 
-<script>
+var fs = require("fs")
 
-  var pg = require('pg');
-    var LANID = getElementById("LANID");
-    var CMT = getElementById("Comment");
-    var MarkSubmit = getElementById("markDetails");
+fs.writeFile("./object.json", JSON.stringify(pair), (err) => {
+    if (err) {
+        console.error(err);
+        return;
+    };
+    console.log("File has been created");
+});
 
-     var QRY = 'INSERT INTO public."PG_TEST"("Comment","ID") VALUES (\'ccc\',\'ccc\');';
- //   var QRY = 'INSERT INTO public."PG_TEST"("Comment","ID") VALUES ('+CMT+"'"+','+"'"+LANID+"');";
-
-   var connectionString = "postgres://Alex:Dantedobee88@localhost:5433/postgres";
-
-   var pgClient = new pg.Client(connectionString);
-
-// var QRY = 'INSERT INTO public."PG_TEST"("Comment","ID") VALUES (\'ddd\',\'ddd\');';
-   
-   pgClient.connect();
-   
-//   pgClient.query(QRY);
-
-   pgClient.query(QRY)
-
-   function submitting(){
-       pgClient.query(QRY);
-   }
-    </script>
-
-</body>
-</html>
+// Now we need to send it to another server with the python running on it
