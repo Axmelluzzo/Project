@@ -1,0 +1,59 @@
+import psycopg2
+import socket
+import json
+import socket
+
+database = psycopg2.connect(database="PyCharm", user="Alex", password="Dantedobee88", host="localhost", port="5433")
+
+cursor = database.cursor()
+
+s = socket.socket()
+s.bind(('0.0.0.0', 80))
+
+s.listen(1)
+while True:
+    c, addr = s.accept()
+    print
+    'Got connection from', addr
+    print
+    c.recv(1024)
+    c.close()
+
+# Does recv() take the JSON into this server? What would the variable name be and how can i begin to parse?
+
+while True:
+    clientSocket, address = serverSocket.accept()
+
+    # read data size first, then the whole data and decode as json
+    datasize = read_long(clientSocket)
+    data = read_blob(clientSocket, datasize)
+    jdata = json.load(data.decode('utf-8'))
+
+    print("Connection received from %s..." % str(address))
+#    clientSocket.sendall(struct.pack("L", len(jdata)))
+ #   clientSocket.sendall(jdata)
+  #  clientSocket.close()
+
+
+# Parse JSO
+
+# data_out = msg.payload.decode("utf-8", "ignore")
+
+# Define separated values of JSON
+
+
+query = """INSERT INTO public.pydash (LANID, Comment, Field1, Value1, Field2, Value2) VALUES (%s, %s, %s, %s, %s, %s)"""
+
+# Define separated values of JSON
+
+
+cursor.execute(query, values)
+
+cursor.close()
+
+database.commit()
+
+database.close()
+
+print
+'Successfully wrote your comment to PostGres database!'
