@@ -1,0 +1,45 @@
+
+
+function listenToMarksSelection() {
+    viz.addEventListener(tableau.TableauEventName.MARKS_SELECTION, onMarksSelection);
+  }
+  
+  function onMarksSelection(marksEvent) {
+    return marksEvent.getMarksAsync().then(reportSelectedMarks);
+  }
+  
+  function reportSelectedMarks(marks) {
+    var html = [];
+    for (var markIndex = 0; markIndex < marks.length; markIndex++) {
+      var pairs = marks[markIndex].getPairs();
+      html.push("<b>Mark " + markIndex + ":</b><ul>");
+      for (var pairIndex = 0; pairIndex < pairs.length; pairIndex++) {
+        var pair = pairs[pairIndex];
+        html.push("<li><b>fieldName:</b> " + pair.fieldName);
+        html.push("<br/><b>formattedValue:</b> " + pair.formattedValue + "</li>");
+      }
+      html.push("</ul>");
+    }
+  
+    var dialog = $("#dialog");
+    dialog.html(html.join(""));
+    dialog.dialog("open");
+  }     
+
+
+// Variable we want is "PAIR", write that to a JSON.
+
+var fs = require("fs")
+
+var jsonmessage = fs.writeFile("jsonmessage.json", JSON.stringify(pair), (err) => {
+    if (err) {
+        console.error(err);
+        return;
+    };
+    console.log("File has been created");
+});
+
+var io = require('socket.io')(80);
+io.emit(msg)
+// Now we need to send it to another server with the python running on it
+
