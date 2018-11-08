@@ -43,10 +43,17 @@
 
 				controls.screenSpacePanning = false;
 
+					//Enable 360 Y, X, & Z
+				camera.rotation.order = 'YXZ';
+				const heading = camera.rotation.y;
+				const radians = heading > 0 ? heading : (2 * Math.PI) + heading;
+ 				const degrees = THREE.Math.radToDeg(radians);
+
+
+
 				controls.minDistance = 100;
 				controls.maxDistance = 500;
 
-				controls.maxPolarAngle = Math.PI / 2;
 
 
 
