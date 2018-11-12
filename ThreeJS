@@ -56,6 +56,22 @@
 
 
 
+				// Auto-rotate
+				// const orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+				// orbitControls.autoRotate = true;
+				// orbitControls.autoRotateSpeed = -25.0;
+				// function update() {
+  				// const heading = camera.rotation.y;
+  				// const radians = heading > 0
+				// ? heading
+   				//  : (2 * Math.PI) + heading;
+  				// const degrees = THREE.Math.radToDeg(radians);
+  				// const degreesRounded = Math.floor(degrees);
+  				// orbitControls.update();
+				// }
+
+
+
 
 				// Shapes
                 var xDistance = 50;
@@ -78,9 +94,6 @@
                 	scene.add(sphere);
             }
         };
-
-
-
 
 
 
