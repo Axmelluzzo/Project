@@ -1,0 +1,131 @@
+<html>
+	<head>
+		<title>Cigna Network Diagram Start</title>
+	</head>
+
+	<body>
+		
+		<script src="js/three.js"></script>
+		<script src="js/OrbitControls.js"></script>
+		<script src="js/WebGL.js"></script>
+
+		<script>
+
+			var camera, controls, scene, renderer;
+
+			init();
+			
+			animate();
+
+
+				// Define actions needed
+
+			function init() {
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0xcccccc );
+				scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
+				camera.position.set( 400, 200, 0 );
+
+				// Camera Controls
+
+				controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+				controls.enableDamping = true; 
+				controls.dampingFactor = 0.25;
+
+				controls.screenSpacePanning = false;
+
+					//Enable 360 Y, X, & Z
+				camera.rotation.order = 'YXZ';
+				const heading = camera.rotation.y;
+				const radians = heading > 0 ? heading : (2 * Math.PI) + heading;
+ 				const degrees = THREE.Math.radToDeg(radians);
+
+				var linematerial = new THREE.LineBasicMaterial( {
+   						 color: 0x293A45,
+   						 opacity: 1,
+  						 linewidth: 4
+						} )
+
+                var geometry = new THREE.Geometry(); 
+                geometry.vertices.push(new THREE.Vector3( -100, 0, 0) ); 
+                geometry.vertices.push(new THREE.Vector3( 0, 100, 0) ); 
+                geometry.vertices.push(new THREE.Vector3( 100, 0, 0) );
+                geometry.vertices.push(new THREE.Vector3( -200, 0, 0) );
+                geometry.vertices.push(new THREE.Vector3( 0, -200, 0) );
+                geometry.vertices.push(new THREE.Vector3( 0, 0, 200) );
+                geometry.vertices.push(new THREE.Vector3( 100, 200, 300) );
+                geometry.vertices.push(new THREE.Vector3( -100, 200, 300) );
+                geometry.vertices.push(new THREE.Vector3( 100, 200, -300) );
+                geometry.vertices.push(new THREE.Vector3( -300, -200, 300) );
+                geometry.vertices.push(new THREE.Vector3( -100, -200, -300) );
+
+
+
+				var line = new THREE.Line(geometry, linematerial)
+
+                scene.add( line ) ;
+
+				// Lights
+
+				var light = new THREE.DirectionalLight( 0xffffff );
+				light.position.set( 1, 1, 1 );
+				scene.add( light );
+
+				var light = new THREE.DirectionalLight( 0x002288 );
+				light.position.set( - 1, - 1, - 1 );
+				scene.add( light );
+
+				var light = new THREE.AmbientLight( 0x222222 );
+				scene.add( light );
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+				//Init function End
+
+
+				// Resize camera for different browser zoom
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+
+				// Tie together
+			function animate() {
+
+				requestAnimationFrame( animate );
+				
+				controls.update(); 
+
+				render();
+
+			}
+
+
+				// Submit objects to render engine
+			function render() {
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>
